@@ -557,7 +557,7 @@ public class ScheduleBuilder {
                 if (taskType == 1) {
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t) && Data.getTaskList().getTasks().get(j).getPriority()) {
-                            percentage = 100 * z.capacity.get(t) / (blockDuration) / Data.getTaskList().getTasks().get(j).getHours();
+                            percentage = 100 * z.capacity.get(t) / (totalCapacity/dayCapacity) / Data.getTaskList().getTasks().get(j).getHours();
                             task = new BuiltTask(t, z.capacity.get(t) / (totalCapacity/dayCapacity), percentage);
                             day.addBTask(task);
                             break;
@@ -567,7 +567,7 @@ public class ScheduleBuilder {
                 }else if(taskType == -1){
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t) && !Data.getTaskList().getTasks().get(j).getPriority()) {
-                            percentage = 100 * z.capacity.get(t) / (blockDuration) / Data.getTaskList().getTasks().get(j).getHours();
+                            percentage = 100 * z.capacity.get(t) / (totalCapacity/dayCapacity) / Data.getTaskList().getTasks().get(j).getHours();
                             task = new BuiltTask(t, z.capacity.get(t) / (totalCapacity/dayCapacity), percentage);
                             day.addBTask(task);
                             break;
