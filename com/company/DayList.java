@@ -24,6 +24,14 @@ public class DayList {
         }
     }
 
+    public Vector<Day> getDays() {
+        return days;
+    }
+
+    public void setDays(Vector<Day> days) {
+        this.days = days;
+    }
+
     void removeDay(Day d){
         days.remove(d);
     }

@@ -18,7 +18,11 @@ public class LevelsOfDifficultyList {
         levels.remove(level);
     }
 
-    int getSize(){
-        return levels.size();
+    public Vector<DiffLevel> getLevels() {
+        return levels;
+    }
+
+    public void setLevels(Vector<DiffLevel> levels) {
+        this.levels = levels;
     }
 }

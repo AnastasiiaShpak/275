@@ -10,19 +10,19 @@ public class Day {
         this.limit = l;
     }
 
-    void setLimit(double limit){
-        this.limit = limit;
+    public Date getDate() {
+        return date;
     }
 
-    void setDate(Date d){
-        this.date = d;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    double getLimit(){
+    public double getLimit() {
         return limit;
     }
 
-    Date getDate(){
-        return date;
+    public void setLimit(double limit) {
+        this.limit = limit;
     }
 }

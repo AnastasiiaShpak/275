@@ -11,27 +11,27 @@ public class DiffLevel {
         this.name = name;
     }
 
-    void setHours(double hours){
-        this.hours = hours;
-    }
-
-    void setName(String name){
-        this.name = name;
-    }
-
-    void setColor(String color){
-        this.color = color;
-    }
-
-    double getHours(){
+    public double getHours() {
         return hours;
     }
 
-    String getName(){
+    public void setHours(double hours) {
+        this.hours = hours;
+    }
+
+    public String getName() {
         return name;
     }
 
-    String getColor(){
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getColor() {
         return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 }

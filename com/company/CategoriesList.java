@@ -12,7 +12,7 @@ public class CategoriesList {
     //-1 if hours already exist
     //0 if successful
     int addTask(Task t, int category){
-        if(categories.get(category).tasks.contains(t.getName())){
+        if(categories.get(category).getTasks().contains(t.getName())){
             return -1;
         }
         categories.get(category).addTask(t);
@@ -23,8 +23,11 @@ public class CategoriesList {
         categories.add(new Category(color));
     }
 
-    int getSize(){
-        return categories.size();
+    public Vector<Category> getCategories() {
+        return categories;
     }
 
+    public void setCategories(Vector<Category> categories) {
+        this.categories = categories;
+    }
 }

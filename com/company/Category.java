@@ -3,9 +3,9 @@ package com.company;
 import java.util.Vector;
 
 public class Category{
-    Vector<String> tasks; //task names
+    private Vector<String> tasks; //task names
     private String color;
-    int number;
+    private int number;
 
     Category(String color){
         this.color = color;
@@ -37,15 +37,27 @@ public class Category{
         tasks.remove(t.getName());
     }
 
-    void setColor(String color){
-        this.color = color;
+    public Vector<String> getTasks() {
+        return tasks;
     }
-    String getColor(){
+
+    public void setTasks(Vector<String> tasks) {
+        this.tasks = tasks;
+    }
+
+    public String getColor() {
         return color;
     }
 
-    int getSize(){
-        return tasks.size();
+    public void setColor(String color) {
+        this.color = color;
     }
 
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
 }

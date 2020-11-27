@@ -43,6 +43,7 @@ public class Main {
         Data.getTaskList().addTask(t6);
         ScheduleBuilder sb = new ScheduleBuilder();
         Data.printBDList();
+        
         //Data.getBuiltDayList().print();
         //System.out.println("");
         //Data.getTaskList().printCriticalDays();
