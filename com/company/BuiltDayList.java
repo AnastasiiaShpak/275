@@ -3,7 +3,7 @@ import java.util.Vector;
 
 public class BuiltDayList {
     private Vector<BuiltDay> builtDays;
-
+    public boolean successful = true;
     public BuiltDayList(){
         builtDays = new Vector<BuiltDay>();
     }
