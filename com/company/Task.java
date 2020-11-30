@@ -1,4 +1,9 @@
+/*
+
+ */
+
 package com.company;
+import java.awt.*;
 import java.util.Date;
 
 public class Task {
@@ -7,10 +12,9 @@ public class Task {
     private Date deadline;
     private int duration;
     private double hours;
-    private double hrsPerDay;
     private int levelOfDifficulty;
-    private String color;
-    private int category;
+    private Color color;
+    private String category;
     private boolean priority;
 
     public Task(String name, Date start, Date deadline, double hours, boolean prioritized){
@@ -19,37 +23,8 @@ public class Task {
         this.deadline = deadline;
         this.hours = hours;
         this.priority = prioritized;
-        this.category = -1;
+        this.category = "";
         setDuration();
-        hrsPerDay = hours/duration;
-    }
-    public void setName(String name){
-        this.name = name;
-
-    }
-    public void setStart(Date start){
-        this.start = start;
-        setDuration();
-    }
-    public void setDeadline(Date deadline){
-        this.deadline = deadline;
-        setDuration();
-    }
-    public void setHours(Double hours){
-        this.hours = hours;
-        hrsPerDay = hours/duration;
-    }
-    public void setLevelOfDifficulty(int level){
-        this.levelOfDifficulty = level;
-    }
-    public void setColor(String color){
-        this.color = color;
-    }
-    public void setCategory(int category){
-        this.category = category;
-    }
-    public void setPriority(boolean priority){
-        this.priority = priority;
     }
     private void setDuration(){
         long startTime = start.getTime();
@@ -57,6 +32,12 @@ public class Task {
         long diffTime = dueTime - startTime;
         long diffDays = diffTime / (1000 * 60 * 60 * 24) + 1;
         duration = (int) diffDays;
+    }
+    public void setColor(Color color) {
+        this.color = color;
+    }
+    public void setCategory(String category) {
+        this.category = category;
     }
     public String getName(){
         return name;
@@ -73,15 +54,14 @@ public class Task {
     public int getLevelOfDifficulty(){
         return levelOfDifficulty;
     }
-    public String getColor(){
+    public Color getColor(){
         return color;
     }
-    public int getCategory(){
+    public String getCategory(){
         return category;
     }
     public boolean getPriority(){
         return priority;
     }
     public int getDuration(){return duration;}
-    public double getHrsPerDay(){return hrsPerDay;}
 }

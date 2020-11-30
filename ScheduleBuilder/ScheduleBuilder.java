@@ -20,6 +20,7 @@ public class ScheduleBuilder {
     private int duration;
     private Vector<Zone> zonesByPriority = new Vector<>();
     private Vector<Zone> zonesByDates = new Vector<>();
+    private Vector<Date> criticalDays = new Vector<>();
     private BuiltDayList bdList = new BuiltDayList();
 
     //constructor
@@ -28,15 +29,12 @@ public class ScheduleBuilder {
             Data.getBuiltDayList().successful = false;
             return;
         }
-
         setTotalHours();
-        this.duration = (int) Data.getTaskList().getDuration();
+        this.duration = Data.getTaskList().getDuration();
         idealHoursPerDay = totalHours / (duration - Data.getDayList().getSize());
-
+        constructCriticalDays();
         constructZones();
-        //printZones();
         BalanceZones();
-        //printZones();
         constructOutput();
     }
 
@@ -81,6 +79,32 @@ public class ScheduleBuilder {
         }
     }
 
+    private void constructCriticalDays(){
+        for(int i = 0; i < Data.getTaskList().getSize(); i++){
+            addCriticalDate(Data.getTaskList().getTasks().get(i).getStart());
+            addCriticalDate(new Date(Data.getTaskList().getTasks().get(i).getDeadline().getTime() + TimeUnit.DAYS.toMillis(1))); //add day after deadline
+        }
+    }
+
+    private void addCriticalDate(Date d){
+        if(criticalDays.size() == 0){
+            criticalDays.add(d);
+        }else{
+            if(!criticalDays.contains(d)){
+                if(criticalDays.get(criticalDays.size() -1).compareTo(d) <= 0){
+                    criticalDays.add(d);
+                }else {
+                    for (int i = 0; i < criticalDays.size(); i++) {
+                        if (d.compareTo(criticalDays.get(i)) < 0) {
+                            criticalDays.insertElementAt(d, i);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     //create zones between start dates and deadlines
     //share hours for each task equally between days where task is present
     //calculate imbalance of each zone from how far it is from ideal
@@ -89,12 +113,12 @@ public class ScheduleBuilder {
         Date current;
         Zone zone;
         //new
-        for (int i = 0; i < Data.getTaskList().getCriticalDays().size() - 1; i++) { //for each critical date
+        for (int i = 0; i < criticalDays.size() - 1; i++) { //for each critical date
             zone = new Zone(); //make zone
             zone.zoneOrderInTime = i; //set order
 
-            Date start = Data.getTaskList().getCriticalDays().get(i);
-            Date deadline = Data.getTaskList().getCriticalDays().get(i + 1);
+            Date start = criticalDays.get(i);
+            Date deadline = criticalDays.get(i + 1);
 
             //calculate number of days off in the zone
             for (int j = 0; j < Data.getDayList().getSize(); j++) {
@@ -104,7 +128,7 @@ public class ScheduleBuilder {
             }
 
             //zone duration
-            current = Data.getTaskList().getCriticalDays().get(i);
+            current = criticalDays.get(i);
             zone.duration = Data.difference(start, deadline) - 1;
 
             if (zone.numOfDaysOff == zone.duration) {
@@ -526,6 +550,7 @@ public class ScheduleBuilder {
             day.setTotalHours(0);
             bdList.addBDay(day);
         }
+        bdList.totalHours = totalHours;
         Data.setBuiltDaysList(bdList);
     }
 
@@ -665,4 +690,14 @@ public class ScheduleBuilder {
     }
 
  */
+
+   /*
+    private void printCriticalDays(){
+        String pattern = "yyyy-MM-dd";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        for(int i = 0; i < criticalDays.size(); i++){
+            System.out.println(simpleDateFormat.format(criticalDays.get(i)));
+        }
+    }
+     */
 }

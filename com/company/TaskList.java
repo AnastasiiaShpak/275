@@ -1,31 +1,33 @@
+/*
+Task list
+Contains vector of tasks, keeps tasks sorted by start date, keeps track of what is earliest and latest dates in a schedule and schedule duration.
+Maximum number of tasks = 100
+
+CMPT275 Project
+Group 21
+ */
 package com.company;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import Support.ColorGenerator;
+
 import java.util.Vector;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-
 public class TaskList {
-
     private Vector<Task> tasks;
-    private Vector<Date> criticalDays;
     private Date earliest;
     private Date latest;
-    long duration = 0;
+    private int duration = 0;
 
+    //constructor
     public TaskList(){
         tasks = new Vector<Task>();
-        criticalDays = new Vector<Date>();
     }
-    public long getDuration() {
+    public int getDuration() {
         return duration;
     }
     public Vector<Task> getTasks() {
         return tasks;
-    }
-    public Vector<Date> getCriticalDays() {
-        return criticalDays;
     }
     public Date getEarliest() {
         return earliest;
@@ -33,27 +35,32 @@ public class TaskList {
     public Date getLatest() {
         return latest;
     }
+    //-1 if tasks is not initialized
+    public int getSize(){
+        if(tasks != null)
+            return tasks.size();
+        else
+            return -1;
+    }
 
-    //add task
     //sorted by start date
     //-1 for repeated name
     //-2 for mixed start and deadline
     //-3 for going beyond schedule limit
+    //-4 for too long name
+    //-5 exceed task limit
     // 0 for successful result
     public int addTask(Task t){
         //if name already exists
-        for(int i = 0; i < tasks.size(); i++){
-            if(tasks.get(i).getName() == t.getName()){
-                return -1;
-            }
-        }
+       int validation = validateTask(t);
+       if(validation != 0)
+           return validation;
 
-        //if deadline is before start
-        if(t.getStart().compareTo(t.getDeadline()) > 0){
-            return -2;
-        }
+       if(tasks.size() == 100){
+           return -5;
+       }
 
-        //if duration goes beyond the schedule limit (1 year)
+        //update earliest and latest dates
         Date first = earliest;
         Date last = latest;
         if(earliest == null || t.getStart().compareTo(earliest) < 0){
@@ -63,13 +70,10 @@ public class TaskList {
             last = t.getDeadline();
         }
         int difference = Data.difference(first, last);
-        if(difference > 365){                                 //schedule limit is 1 year
-            return -3;
-        }else{
-            earliest = first;
-            latest = last;
-            duration = difference;
-        }
+        earliest = first;
+        latest = last;
+        duration = difference;
+
 
         if(tasks.size() == 0){
             tasks.add(t);
@@ -87,43 +91,149 @@ public class TaskList {
                 tasks.add(t);
             }
         }
-        addCriticalDate(t.getStart());
-        addCriticalDate(new Date(t.getDeadline().getTime() + TimeUnit.DAYS.toMillis(1))); //add day after deadline
+        t.setColor(ColorGenerator.generateColor());
         return 0;
     }
-    public void addCriticalDate(Date d){
-        if(criticalDays.size() == 0){
-            criticalDays.add(d);
-        }else{
-            if(!criticalDays.contains(d)){
-                if(criticalDays.get(criticalDays.size() -1).compareTo(d) <= 0){
-                    criticalDays.add(d);
-                }else {
-                    for (int i = 0; i < criticalDays.size(); i++) {
-                        if (d.compareTo(criticalDays.get(i)) < 0) {
-                            criticalDays.insertElementAt(d, i);
-                            break;
+
+    //-1 if repeated name in new task
+    //-2 for mixed start and deadline in new task
+    //-3 for going beyond schedule limit in new task
+    //-4 for too long name in new task
+    //-5 if task does not exist in new task
+    // 0 if successful
+    public int removeTask(Task t){
+        //task does not exist
+        if(!tasks.contains(t))
+            return -1;
+
+        //update earliest date and duration
+        if(t.getStart().compareTo(earliest) == 0){
+            if(tasks.size() == 1)
+                earliest = null;
+            else {
+                Date newEarliest = null;
+                for (Task task: tasks){
+                    if(task != t){
+                        if (newEarliest == null)
+                            newEarliest = task.getStart();
+                        else if(task.getStart().compareTo(newEarliest) < 0){
+                            newEarliest = task.getStart();
+                        }
+                    }
+
+                }
+                earliest = newEarliest;
+                duration = Data.difference(earliest, latest);
+            }
+        }
+        //end update earliest date and duration
+
+        //update last date
+        if(t.getDeadline().compareTo(earliest) == 0){
+            if(tasks.size() == 1)
+                latest = null;
+            else {
+                Date newLatest = null;
+                for (Task task: tasks){
+                    if(task != t){
+                        if (newLatest == null)
+                            newLatest = task.getDeadline();
+                        else if(task.getDeadline().compareTo(newLatest) > 0){
+                            newLatest = task.getDeadline();
                         }
                     }
                 }
             }
         }
-    }
-    public void removeTask(Task t){
+        //end update latest date
+
+        ColorGenerator.freeColor(t.getColor());
         tasks.remove(t);
-        //update critical dates
-        //update earliest
-        //update latest
+        return 0;
     }
-    public int getSize(){
-        return tasks.size();
+
+    //-1 if repeated name in new task
+    //-2 for mixed start and deadline in new task
+    //-3 for going beyond schedule limit in new task
+    //-4 for too long name in new task
+    //-5 if task is not is the list
+    //0 if successful
+    public int editTask(Task oldTask, Task newTask){
+        if(!tasks.contains(oldTask))
+            return -5;
+
+        int validation = validateTask(newTask);
+        if(validation != 0)
+            return validation;
+
+        removeTask(oldTask);
+        addTask(newTask);
+        return 0;
     }
-    public void printCriticalDays(){
-        String pattern = "yyyy-MM-dd";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-        for(int i = 0; i < criticalDays.size(); i++){
-            System.out.println(simpleDateFormat.format(criticalDays.get(i)));
+
+    //-1 if repeated name in new task
+    //-2 for mixed start and deadline in new task
+    //-3 for going beyond schedule limit in new task
+    //-4 for too long name in new task
+    // 0 from correct input
+    private int validateTask(Task t){
+        for(Task task: tasks){
+            if(task.getName().equals(t.getName())){
+                return -1;
+            }
         }
+        //if deadline is before start
+        if(t.getStart().compareTo(t.getDeadline()) > 0){
+            return -2;
+        }
+
+        //if task duration goes beyond schedule limit
+        Date first = earliest;
+        Date last = latest;
+        if(earliest == null || t.getStart().compareTo(earliest) < 0){
+            first = t.getStart();
+        }
+        if(latest == null || t.getDeadline().compareTo(latest) > 0){
+            last = t.getDeadline();
+        }
+        int difference = Data.difference(first, last);
+        if(difference > 365)                          //schedule limit is 1 year
+            return -3;
+
+        //if task name is too long
+        if(t.getName().length() > 25){
+            return -4;
+        }
+
+        return 0;
+    }
+
+    //if days > 0 move forward
+    //if move < 0 move back
+    //return 0 if successful
+    //return -1 if schedule becomes too long
+    public int moveTask(Task t, int days){
+        Date newStart;
+        Date newDeadline;
+        if(days == 0){
+            return 0;
+        }else if(days > 0) {
+            newStart = new Date(t.getStart().getTime() + TimeUnit.DAYS.toMillis(days));
+            newDeadline = new Date(t.getDeadline().getTime() + TimeUnit.DAYS.toMillis(days));
+        }else{
+            newStart = new Date(t.getStart().getTime() - TimeUnit.DAYS.toMillis(days));
+            newDeadline = new Date(t.getDeadline().getTime() - TimeUnit.DAYS.toMillis(days));
+        }
+        Task newTask = new Task(t.getName(), newStart, newDeadline, t.getHours(), t.getPriority());
+        removeTask(t);
+        return addTask(newTask);
+    }
+
+    //clear task list
+    public void clear(){
+        tasks.clear();
+        earliest = null;
+        latest = null;
     }
 }
 

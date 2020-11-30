@@ -1,34 +1,28 @@
 package com.company;
-
 import java.util.Vector;
+import java.util.Date;
 
 public class DayList {
-    private Vector<Day> days;
-
-    DayList(){
-        days = new Vector<Day>();
+    private Vector<Date> daysOff;
+    public DayList(){
+        daysOff = new Vector<>();
     }
-
-    //add day
-    //sorted by date
-    void addDay(Day d){
-        if(days.size() == 0){
-            days.add(d);
-        }else{
-            for(int i = 0; i < days.size(); i++){
-                if(days.get(i).getDate().compareTo(d.getDate()) > -1){
-                    days.insertElementAt(d, i);
-                    break;
-                }
-            }
-        }
+    public Vector<Date> getDays() {
+        return daysOff;
     }
-
-    void removeDay(Day d){
-        days.remove(d);
+    public int getSize(){
+        return daysOff.size();
     }
-
-    int getSize(){
-        return days.size();
+    public void setDays(Vector<Date> daysOff) {
+        this.daysOff = daysOff;
+    }
+    public void addDayOff(Date d){
+        daysOff.add(d);
+    }
+    public void removeDay(Date d){
+        daysOff.remove(d);
+    }
+    public void clear(){
+        daysOff.clear();
     }
 }

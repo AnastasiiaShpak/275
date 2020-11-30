@@ -1,5 +1,13 @@
-package com.company;
+/*
+Data class
+Contains all data shared by packages and support functions used by multiple packages
+All data is static and public
 
+CMPT275
+Group 21
+ */
+
+package com.company;
 import java.util.Date;
 
 public class Data {
@@ -8,8 +16,6 @@ public class Data {
     private static LevelsOfDifficultyList lList = new LevelsOfDifficultyList();
     private static CategoriesList cList = new CategoriesList();
     private static BuiltDayList bdList = new BuiltDayList();
-
-    //public Data(){}
 
     public static void setTaskList(TaskList tl){
         tList = tl;

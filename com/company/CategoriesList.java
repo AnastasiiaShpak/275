@@ -1,30 +1,61 @@
+/*
+List of categories
+Maximum number of categories = 100
+
+CMPT275 Project
+Group 21
+ */
+
 package com.company;
 import java.util.Vector;
 
 public class CategoriesList {
     Vector<Category> categories;
 
-    CategoriesList(){
+    public CategoriesList(){
         categories = new Vector<Category>();
     }
-
-    //add category
-    //-1 if hours already exist
-    //0 if successful
-    int addTask(Task t, int category){
-        if(categories.get(category).tasks.contains(t.getName())){
-            return -1;
-        }
-        categories.get(category).addTask(t);
-        return 0;
-    }
-
-    void addCategory(String color){
-        categories.add(new Category(color));
-    }
-
-    int getSize(){
+    public int getSize(){
         return categories.size();
     }
 
+    //-1 if invalid name
+    //-2 if name already exists
+    // -3 exceed number of categories
+    //0 if successful
+    public int addCategory(String name){
+        if(name.length() > 25 || name.equals(""))
+            return -1;
+
+        if(categories.size() == 100)
+            return -3;
+
+        for(Category c: categories){
+            if(c.getName().equals(name))
+                return -2;
+        }
+        categories.add(new Category(name));
+        return 0;
+    }
+
+    //-1 if there is no category with this name
+    //0 is successful
+    public int removeCategory(String name){
+        for(Category c: categories){
+            if(c.getName().equals(name)){
+                c.clear();
+                categories.remove(c);
+                return 0;
+            }
+        }
+        return -1;
+    }
+
+    public Category getCategory(String name){
+        for(Category c: categories) {
+            if (c.getName().equals(name))
+                return c;
+        }
+        return null;
+    }
 }
