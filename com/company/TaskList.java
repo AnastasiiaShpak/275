@@ -147,7 +147,13 @@ public class TaskList {
         }
         //end update latest date
 
+        //remove task from category
         ColorGenerator.freeColor(t.getColor());
+        if(!t.getCategory().equals("")){
+            Category c =  Data.getCategories().getCategory(t.getCategory());
+            c.removeTask(t);
+        }
+
         tasks.remove(t);
         return 0;
     }

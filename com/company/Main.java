@@ -67,13 +67,13 @@ public class Main {
         System.out.println('\n');
 
         //create categories
-        CategoriesList cList = new CategoriesList();
-        cList.addCategory("C1");
-        cList.getCategory("C1").addTask(t3);
-        cList.getCategory("C1").addTask(t5);
-        cList.addCategory("C2");
-        cList.getCategory("C2").addTask(t4);
-        cList.getCategory("C2").addTask(t1);
+        Data.setCategoriesList(new CategoriesList());
+        Data.getCategories().addCategory("C1");
+        Data.getCategories().getCategory("C1").addTask(t3);
+        Data.getCategories().getCategory("C1").addTask(t4);
+        Data.getTaskList().removeTask(t3);
+        Data.getCategories().getCategory("C1").addTask(t5);
+
 
         //print colors after categories
         for(int i = 0; i < Data.getTaskList().getSize(); i++){
@@ -83,8 +83,8 @@ public class Main {
         System.out.println('\n');
 
         //remove one category
-        cList.removeCategory("C1");
-        cList.getCategory("C2").removeTask(t1);
+        Data.getCategories().removeCategory("C1");
+        Data.getCategories().getCategory("C2").removeTask(t1);
 
         //print categories after removal
         for(int i = 0; i < Data.getTaskList().getSize(); i++){
