@@ -31,10 +31,11 @@ public class ScheduleBuilder {
         }
         setTotalHours();
         this.duration = Data.getTaskList().getDuration();
-        idealHoursPerDay = totalHours / (duration - Data.getDayList().getSize());
+        idealHoursPerDay = totalHours / (duration - Data.getDayOffList().getSize());
         constructCriticalDays();
         constructZones();
         BalanceZones();
+       // printZones();
         constructOutput();
     }
 
@@ -121,8 +122,8 @@ public class ScheduleBuilder {
             Date deadline = criticalDays.get(i + 1);
 
             //calculate number of days off in the zone
-            for (int j = 0; j < Data.getDayList().getSize(); j++) {
-                Date limited = Data.getDayList().getDays().get(j);
+            for (int j = 0; j < Data.getDayOffList().getSize(); j++) {
+                Date limited = Data.getDayOffList().getDays().get(j);
                 if (limited.compareTo(start) >= 0 && limited.compareTo(deadline) < 0)
                     zone.numOfDaysOff++;
             }
@@ -182,7 +183,7 @@ public class ScheduleBuilder {
     private int getNumOfDaysOffInTask(Task t) {
         int numOdDaysOff = 0;
         for (int i = 0; i < t.getDuration(); i++)
-            if (Data.getDayList().getDays().contains(new Date(t.getStart().getTime() + TimeUnit.DAYS.toMillis(i)))) {
+            if (Data.getDayOffList().getDays().contains(new Date(t.getStart().getTime() + TimeUnit.DAYS.toMillis(i)))) {
                 numOdDaysOff++;
             }
         return numOdDaysOff;
@@ -198,7 +199,7 @@ public class ScheduleBuilder {
             //go through every day that has current task
             boolean possible = false;
             for (int j = 0; j < duration; j++) {
-                if (!Data.getDayList().getDays().contains(currentDate)) {
+                if (!Data.getDayOffList().getDays().contains(currentDate)) {
                     possible = true;
                     break;
                 }
@@ -554,7 +555,7 @@ public class ScheduleBuilder {
         Data.setBuiltDaysList(bdList);
     }
 
-    //add sequence of days with only one type of tasks (prioritized or non prioritized)
+    //add sequence of days with only one type of tasks (prioritized or non prioritized) for one zone
     //taskType: 1 when prioritized, -1 when non prioritized, 0 for mono zone
     private void AddMonoBlock(Zone z, int taskType, double totalCapacity, double dayCapacity) {
         BuiltDay day;
@@ -563,10 +564,10 @@ public class ScheduleBuilder {
         Date currentDate = new Date();
         double blockDuration = Math.floor(totalCapacity / dayCapacity); //3.6
         for (int i = 0; i < blockDuration; i++) {
-            currentDate.setTime(Data.getTaskList().getEarliest().getTime() + TimeUnit.DAYS.toMillis(bdList.getSize()));
+            currentDate = new Date(Data.getTaskList().getEarliest().getTime() + TimeUnit.DAYS.toMillis(bdList.getSize()));
             day = new BuiltDay(currentDate);
             //if it's a day off
-            if (Data.getDayList().getDays().contains(currentDate)) {
+            if (Data.getDayOffList().getDays().contains(currentDate)) {
                 day.setTotalHours(0);
                 bdList.addBDay(day);
                 blockDuration++;
@@ -615,7 +616,7 @@ public class ScheduleBuilder {
         }
     }
 
-    //add day to built days list that contains both prioritized and non prioritized tasks
+    //add day to built days list that contains both prioritized and non prioritized tasks for one zone
     private void AddMixedBlock(Zone z, double dayCapacity, double totalPrioritizedHrs, double totalNonPrioritizedHrs) {
         BuiltDay day;
         BuiltTask task;
@@ -624,11 +625,10 @@ public class ScheduleBuilder {
         boolean added = false;
 
         while(!added){
-            currentDate.setTime(Data.getTaskList().getEarliest().getTime() + TimeUnit.DAYS.toMillis(bdList.getSize()));
+            currentDate = new Date(Data.getTaskList().getEarliest().getTime() + TimeUnit.DAYS.toMillis(bdList.getSize()));
             day = new BuiltDay(currentDate);
-            if (Data.getDayList().getDays().contains(currentDate)) {
+            if (Data.getDayOffList().getDays().contains(currentDate)) {
                 day.setTotalHours(0);
-                bdList.addBDay(day);
             } else {
                 added = true;
                 double pFraction = totalPrioritizedHrs / dayCapacity - Math.floor(totalPrioritizedHrs / dayCapacity);
@@ -672,7 +672,7 @@ public class ScheduleBuilder {
             bdList.addBDay(day);
         }//end while loop
     }
-/*
+
     private void printZones(){
         System.out.println("Total hours: "+ totalHours);
         System.out.println("Duration: "+ duration);
@@ -688,8 +688,6 @@ public class ScheduleBuilder {
             System.out.println('\n');
         }
     }
-
- */
 
    /*
     private void printCriticalDays(){

@@ -18,7 +18,11 @@ public class ColorGenerator {
     public static Color generateColor() {
         Color c = null;
         if(takenColors.size() == 12){
-            c = generateRandom();
+            int validation = 0;
+            while (validation != -1) {
+                c = generateRandom();
+                validation = getIndexFromColor(c);
+            }
         }else{
             int index = mRandom.nextInt(12);
             for(int i = 0; i < 12; i++){

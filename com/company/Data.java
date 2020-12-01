@@ -20,7 +20,7 @@ public class Data {
     public static void setTaskList(TaskList tl){
         tList = tl;
     }
-    public static void setDayList(DayList dl){
+    public static void setDayOffList(DayList dl){
         dList = dl;
     }
     public static void setLevelsList(LevelsOfDifficultyList ll){
@@ -35,7 +35,7 @@ public class Data {
     public static TaskList getTaskList(){
         return tList;
     }
-    public static DayList getDayList(){
+    public static DayList getDayOffList(){
         return dList;
     }
     public static LevelsOfDifficultyList getLevels(){
@@ -57,7 +57,7 @@ public class Data {
     }
     public static void printBDList(){
         for(int i = 0; i < bdList.getSize(); i++){
-            System.out.println("Day " + (i + 1) + ": ");
+            System.out.println(bdList.getBuiltDays().get(i).getDate());
             for(int j = 0; j < bdList.getBuiltDays().get(i).getBuiltTasks().size(); j++){
                 //System.out.println(" Task " + (j + 1));
                 System.out.println(bdList.getBuiltDays().get(i).getBuiltTasks().get(j).getName());

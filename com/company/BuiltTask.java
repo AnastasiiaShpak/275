@@ -1,3 +1,10 @@
+/*
+Work to do for the task on one day. Percentage attribute indicates what is percentage percentage of the whole task is done on this day
+
+CMPT275 Project
+Group 21
+ */
+
 package com.company;
 
 public class BuiltTask {

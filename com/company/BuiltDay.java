@@ -1,10 +1,16 @@
+/*
+Built Day represents a particular date and contains list of tasks to do on this date.
+
+CMPT 275
+Group 21
+ */
+
 package com.company;
 import java.util.Date;
 import java.util.Vector;
 
 public class BuiltDay {
     private Date date;
-    //private double limit = 0;
     private double totalHours = 0;
     private Vector<BuiltTask> builtTasks;
 
@@ -22,23 +28,12 @@ public class BuiltDay {
     public void setDate(Date d){
         this.date = d;
     }
-    /*public void setLimit(double limit){
-        this.limit = limit;
-    }
-
-     */
     public void setTotalHours(double tot){
         this.totalHours = tot;
     }
     public Date getDate(){
         return date;
     }
-    /*
-    public double getLimit(){
-        return limit;
-    }
-
-     */
     public double getTotalHours(){
         return totalHours;
     }
