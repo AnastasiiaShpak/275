@@ -106,7 +106,7 @@ public class TaskList {
         if(!tasks.contains(t))
             return -1;
 
-        //update earliest date and duration
+        //update earliest date
         if(t.getStart().compareTo(earliest) == 0){
             if(tasks.size() == 1)
                 earliest = null;
@@ -114,38 +114,50 @@ public class TaskList {
                 Date newEarliest = null;
                 for (Task task: tasks){
                     if(task != t){
-                        if (newEarliest == null)
+                        if (newEarliest == null) {
                             newEarliest = task.getStart();
-                        else if(task.getStart().compareTo(newEarliest) < 0){
+                            if (newEarliest.compareTo(earliest) == 0)
+                                break;
+                        } else if(task.getStart().compareTo(newEarliest) < 0){
                             newEarliest = task.getStart();
+                            if(newEarliest.compareTo(earliest) == 0)
+                                break;
                         }
                     }
 
                 }
                 earliest = newEarliest;
-                duration = Data.difference(earliest, latest);
+
             }
         }
         //end update earliest date and duration
 
         //update last date
-        if(t.getDeadline().compareTo(earliest) == 0){
+        if(t.getDeadline().compareTo(latest) == 0){
             if(tasks.size() == 1)
                 latest = null;
             else {
                 Date newLatest = null;
                 for (Task task: tasks){
                     if(task != t){
-                        if (newLatest == null)
+                        if (newLatest == null) {
                             newLatest = task.getDeadline();
-                        else if(task.getDeadline().compareTo(newLatest) > 0){
+                            if (newLatest.compareTo(latest) == 0)
+                                break;
+                        }else if(task.getDeadline().compareTo(newLatest) > 0){
                             newLatest = task.getDeadline();
+                            if(newLatest.compareTo(latest) == 0)
+                                break;
                         }
                     }
                 }
+                latest = newLatest;
             }
         }
         //end update latest date
+
+        //update duration
+        duration = Data.difference(earliest, latest);
 
         //remove task from category
         ColorGenerator.freeColor(t.getColor());
