@@ -25,14 +25,15 @@ public class DayList {
         this.daysOff = daysOff;
     }
     public void addDayOff(Date d){
-        daysOff.add(d);
+        if(!daysOff.contains(d))
+            daysOff.add(d);
     }
 
     //adds Date d in any case
     //-1 if cycle is negative
     //0 otherwise
     public int addRepeatedDayOff(Date d, int cycle){
-        daysOff.add(d);
+        addDayOff(d);
         if(cycle < 0)
             return -1;
 
@@ -42,7 +43,7 @@ public class DayList {
 
         Date d2 = new Date(d.getTime() + TimeUnit.DAYS.toMillis(cycle));
         while (d2.compareTo(Data.getTaskList().getEarliest()) >= 0 && d2.compareTo(Data.getTaskList().getLatest()) <= 0){
-            daysOff.add(d2);
+            addDayOff(d2);
             d2 = new Date(d2.getTime() + TimeUnit.DAYS.toMillis(cycle));
         }
         return 0;

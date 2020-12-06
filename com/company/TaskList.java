@@ -1,7 +1,7 @@
 /*
 Task list
 Contains vector of tasks, keeps tasks sorted by start date, keeps track of what is earliest and latest dates in a schedule and schedule duration.
-Maximum number of tasks = 100
+Maximum number of tasks = 50
 
 CMPT275 Project
 Group 21
@@ -9,6 +9,7 @@ Group 21
 package com.company;
 import Support.ColorGenerator;
 
+import java.awt.*;
 import java.util.Vector;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +22,7 @@ public class TaskList {
 
     //constructor
     public TaskList(){
-        tasks = new Vector<Task>();
+        tasks = new Vector<>();
     }
     public int getDuration() {
         return duration;
@@ -52,11 +53,16 @@ public class TaskList {
     // 0 for successful result
     public int addTask(Task t){
         //if name already exists
+        for(Task task: tasks){
+            if(task.getName().equals(t.getName())){
+                return -1;
+            }
+        }
        int validation = validateTask(t);
        if(validation != 0)
            return validation;
 
-       if(tasks.size() == 100){
+       if(tasks.size() == 50){
            return -5;
        }
 
@@ -95,11 +101,7 @@ public class TaskList {
         return 0;
     }
 
-    //-1 if repeated name in new task
-    //-2 for mixed start and deadline in new task
-    //-3 for going beyond schedule limit in new task
-    //-4 for too long name in new task
-    //-5 if task does not exist in new task
+    //-1 if task is not in the list
     // 0 if successful
     public int removeTask(Task t){
         //task does not exist
@@ -130,7 +132,7 @@ public class TaskList {
 
             }
         }
-        //end update earliest date and duration
+        //end update earliest
 
         //update last date
         if(t.getDeadline().compareTo(latest) == 0){
@@ -157,7 +159,11 @@ public class TaskList {
         //end update latest date
 
         //update duration
-        duration = Data.difference(earliest, latest);
+        if(earliest != null && latest != null)
+            duration = Data.difference(earliest, latest);
+        else{
+            duration = 0;
+        }
 
         //remove task from category
         ColorGenerator.freeColor(t.getColor());
@@ -177,6 +183,15 @@ public class TaskList {
     //-5 if task is not is the list
     //0 if successful
     public int editTask(Task oldTask, Task newTask){
+        if(!newTask.getName().equals(oldTask.getName())){
+            //if name already exists
+            for(Task task: tasks){
+                if(task.getName().equals(newTask.getName())){
+                    return -1;
+                }
+            }
+        }
+
         if(!tasks.contains(oldTask))
             return -5;
 
@@ -184,8 +199,35 @@ public class TaskList {
         if(validation != 0)
             return validation;
 
-        removeTask(oldTask);
-        addTask(newTask);
+        if(newTask.getStart().compareTo(earliest) < 0) {
+            earliest = newTask.getStart();
+        }
+
+        if(newTask.getDeadline().compareTo(latest) > 0)
+            latest = newTask.getDeadline();
+
+        duration = Data.difference(earliest, latest);
+
+        oldTask.setDeadline(newTask.getDeadline());
+        oldTask.setStart(newTask.getStart());
+        oldTask.setHours(newTask.getHours());
+        oldTask.setDuration(Data.difference(oldTask.getStart(), oldTask.getDeadline()));
+        oldTask.setName(newTask.getName());
+        oldTask.setPriority(newTask.getPriority());
+
+        tasks.removeElement(oldTask);
+        boolean inserted = false;
+        for(int i = 0; i < tasks.size(); i++){
+            if(tasks.get(i).getStart().compareTo(oldTask.getStart()) > -1){
+                tasks.insertElementAt(oldTask, i);
+                inserted = true;
+                break;
+            }
+        }
+
+        if(!inserted){
+            tasks.add(oldTask);
+        }
         return 0;
     }
 
@@ -195,11 +237,6 @@ public class TaskList {
     //-4 for too long name in new task
     // 0 from correct input
     private int validateTask(Task t){
-        for(Task task: tasks){
-            if(task.getName().equals(t.getName())){
-                return -1;
-            }
-        }
         //if deadline is before start
         if(t.getStart().compareTo(t.getDeadline()) > 0){
             return -2;
@@ -230,28 +267,96 @@ public class TaskList {
     //if move < 0 move back
     //return 0 if successful
     //return -1 if schedule becomes too long
+    //return -2 if task is not in a list
     public int moveTask(Task t, int days){
         Date newStart;
         Date newDeadline;
+        Date newEarliest = null;
+        Date newLatest = null;
+        if(!tasks.contains(t))
+            return -2;
+
         if(days == 0){
             return 0;
-        }else if(days > 0) {
+        }else{
             newStart = new Date(t.getStart().getTime() + TimeUnit.DAYS.toMillis(days));
             newDeadline = new Date(t.getDeadline().getTime() + TimeUnit.DAYS.toMillis(days));
-        }else{
-            newStart = new Date(t.getStart().getTime() - TimeUnit.DAYS.toMillis(days));
-            newDeadline = new Date(t.getDeadline().getTime() - TimeUnit.DAYS.toMillis(days));
         }
-        Task newTask = new Task(t.getName(), newStart, newDeadline, t.getHours(), t.getPriority());
-        removeTask(t);
-        return addTask(newTask);
-    }
+        //update earliest date
+        if(t.getStart().compareTo(earliest) > 0){
+            if (newStart.compareTo(earliest) < 0)
+                newEarliest = newStart;
+            else
+                newEarliest = earliest;
+        }else if(t.getStart().compareTo(earliest) == 0){
+            if(newStart.compareTo(earliest) < 0){
+                newEarliest = newStart;
+            }else {
+                newEarliest = newStart;
+                for (Task currentTask : tasks) {
+                    if (currentTask != t) {
+                        if (currentTask.getStart().compareTo(newEarliest) < 0) {
+                            newEarliest = currentTask.getStart();
+                        }
+                    }
+                }
+            }
+        }
 
+        //end update earliest
+        //update last date
+        if(t.getDeadline().compareTo(latest) < 0){
+            if (newDeadline.compareTo(latest) > 0)
+                newLatest = newDeadline;
+            else
+                newLatest = latest;
+        }else if(t.getDeadline().compareTo(latest) == 0){
+            if(newDeadline.compareTo(latest) > 0){
+                newLatest = newDeadline;
+            }else {
+                newLatest = newDeadline;
+                for (Task currentTask : tasks) {
+                    if (currentTask != t) {
+                        if (currentTask.getDeadline().compareTo(newLatest) > 0) {
+                            newLatest = currentTask.getDeadline();
+                        }
+                    }
+                }
+            }
+        }
+        //end update latest date
+        // if schedule becomes too long
+        if(Data.difference(newEarliest, newLatest) > 365)
+            return -1;
+        else{
+            earliest = newEarliest;
+            latest = newLatest;
+        }
+        //update duration
+        duration = Data.difference(earliest, latest);
+        //update task dates
+        t.setStart(newStart);
+        t.setDeadline(newDeadline);
+        tasks.removeElement(t);
+        boolean inserted = false;
+        for(int i = 0; i < tasks.size(); i++){
+            if(tasks.get(i).getStart().compareTo(t.getStart()) > -1){
+                tasks.insertElementAt(t, i);
+                inserted = true;
+                break;
+            }
+        }
+        if(!inserted){
+            tasks.add(t);
+        }
+        return 0;
+    }
     //clear task list
     public void clear(){
         tasks.clear();
         earliest = null;
         latest = null;
+        duration = 0;
     }
 }
 

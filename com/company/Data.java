@@ -63,6 +63,7 @@ public class Data {
                 System.out.println(bdList.getBuiltDays().get(i).getBuiltTasks().get(j).getName());
                 System.out.println("   hours: " + String.format("%.2f", bdList.getBuiltDays().get(i).getBuiltTasks().get(j).getHours()));
                 System.out.println("   percentage: " + String.format("%.2f", bdList.getBuiltDays().get(i).getBuiltTasks().get(j).getPercentage()));
+                System.out.println("   color: " + bdList.getBuiltDays().get(i).getBuiltTasks().get(j).getColor());
 
             }
             System.out.println("total hours: " + String.format("%.2f", bdList.getBuiltDays().get(i).getTotalHours()));

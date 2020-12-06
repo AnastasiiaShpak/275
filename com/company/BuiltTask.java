@@ -7,15 +7,19 @@ Group 21
 
 package com.company;
 
+import java.awt.*;
+
 public class BuiltTask {
     private String name;
     private double hours;
     private double percentage;
+    private Color color;
 
-    public BuiltTask(String name, double hours, double percentage){
+    public BuiltTask(String name, double hours, double percentage, Color color){
         this.name = name;
         this.hours = hours;
         this.percentage = percentage;
+        this.color = color;
     }
     public void setName(String name){
         this.name = name;
@@ -34,5 +38,8 @@ public class BuiltTask {
     }
     public double getPercentage(){
         return percentage;
+    }
+    public Color getColor() {
+        return color;
     }
 }

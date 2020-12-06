@@ -15,16 +15,18 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class ScheduleBuilder {
-    private double totalHours = 0;
-    private double idealHoursPerDay;
-    private int duration;
-    private Vector<Zone> zonesByPriority = new Vector<>();
-    private Vector<Zone> zonesByDates = new Vector<>();
-    private Vector<Date> criticalDays = new Vector<>();
-    private BuiltDayList bdList = new BuiltDayList();
+    double totalHours;
+    double idealHoursPerDay;
+    int duration;
+    Vector<Zone> zonesByPriority = new Vector<>();
+    Vector<Zone> zonesByDates = new Vector<>();
+    Vector<Date> criticalDays = new Vector<>();
+    BuiltDayList bdList = new BuiltDayList();
 
     //constructor
-    public ScheduleBuilder() {
+    public ScheduleBuilder() {}
+
+    public void balanceTasks(){
         if (!validateInput()) {
             Data.getBuiltDayList().successful = false;
             return;
@@ -35,13 +37,13 @@ public class ScheduleBuilder {
         constructCriticalDays();
         constructZones();
         BalanceZones();
-       // printZones();
+        // printZones();
         constructOutput();
     }
 
     //represents period od time between any start date and deadline
     //all days in one zone have the same tasks and work load
-    static private class Zone {
+    static class Zone {
         int zoneOrderInTime;
         int duration;
         int numOfDaysOff = 0;
@@ -58,7 +60,7 @@ public class ScheduleBuilder {
 
     //connection is an attribute of zone
     //list of tasks that other zones share with this zone and their capacities
-    static private class Connection {
+    static class Connection {
         int zoneIndex;
         int dateIndex;
         String taskName;
@@ -74,20 +76,20 @@ public class ScheduleBuilder {
     }
 
     //add hours of all tasks
-    private void setTotalHours() {
+    void setTotalHours() {
         for (int i = 0; i < Data.getTaskList().getSize(); i++) {
             totalHours += Data.getTaskList().getTasks().get(i).getHours();
         }
     }
 
-    private void constructCriticalDays(){
+    void constructCriticalDays(){
         for(int i = 0; i < Data.getTaskList().getSize(); i++){
             addCriticalDate(Data.getTaskList().getTasks().get(i).getStart());
             addCriticalDate(new Date(Data.getTaskList().getTasks().get(i).getDeadline().getTime() + TimeUnit.DAYS.toMillis(1))); //add day after deadline
         }
     }
 
-    private void addCriticalDate(Date d){
+    void addCriticalDate(Date d){
         if(criticalDays.size() == 0){
             criticalDays.add(d);
         }else{
@@ -110,7 +112,7 @@ public class ScheduleBuilder {
     //share hours for each task equally between days where task is present
     //calculate imbalance of each zone from how far it is from ideal
     //takes into account days off from DaysList in Data class
-    private void constructZones() {
+    void constructZones() {
         Date current;
         Zone zone;
         //new
@@ -139,7 +141,7 @@ public class ScheduleBuilder {
                 continue;
             }
 
-            //capacity of each task
+            //set capacity of each task
             double totalAvgHours = 0;
             double avgHours;
             for (int j = 0; j < Data.getTaskList().getSize(); j++) {
@@ -168,19 +170,21 @@ public class ScheduleBuilder {
             insertZone(z, 0, zonesByPriority.size() - 1);
         }
 
+        //set index values in connections
         for (Zone z : zonesByPriority) {
             if (z.numOfDaysOff == z.duration)
                 continue;
             for (Connection c : z.connections)
                 c.zoneIndex = zonesByDates.get(c.dateIndex).zoneIndex;
         }
+
         //set indexes in prioritizes zones vector
         for (int i = 0; i < zonesByPriority.size(); i++) {
             zonesByPriority.get(i).zoneIndex = i;
         }
     }
 
-    private int getNumOfDaysOffInTask(Task t) {
+    int getNumOfDaysOffInTask(Task t) {
         int numOdDaysOff = 0;
         for (int i = 0; i < t.getDuration(); i++)
             if (Data.getDayOffList().getDays().contains(new Date(t.getStart().getTime() + TimeUnit.DAYS.toMillis(i)))) {
@@ -191,7 +195,7 @@ public class ScheduleBuilder {
 
     //if days off are cover fully any task return false
     //otherwise return true
-    private boolean validateInput() {
+    boolean validateInput() {
         //go through every task
         for (int i = 0; i < Data.getTaskList().getSize(); i++) {
             int duration = Data.difference(Data.getTaskList().getTasks().get(i).getStart(), Data.getTaskList().getTasks().get(i).getDeadline());
@@ -215,7 +219,7 @@ public class ScheduleBuilder {
     //insert zones to zonesByPriority list
     //zones with less number of connections are in the beginning of the list
     //if zones have equal number of connection, they are prioritized by imbalance
-    private void insertZone(Zone zone, int start, int end) {
+    void insertZone(Zone zone, int start, int end) {
         if (start == end) {
             if (zone.connections.size() < zonesByPriority.get(start).connections.size()) { //insert if number of connections is smaller in zone to insert
                 zonesByPriority.insertElementAt(zone, start);
@@ -234,7 +238,7 @@ public class ScheduleBuilder {
         } else {
             int mid = (start + end) / 2;
 
-            if (zone.connections.size() == zonesByPriority.get(mid).connections.size()) { // if middle zone has the sam number of connections...
+            if (zone.connections.size() == zonesByPriority.get(mid).connections.size()) { // if middle zone has the same number of connections...
                 if (Math.abs(zone.imbalance) == Math.abs(zonesByPriority.get(mid).imbalance))//...and imbalance - insert
                     zonesByPriority.insertElementAt(zone, mid);
                 else if (Math.abs(zone.imbalance) > Math.abs(zonesByPriority.get(mid).imbalance))
@@ -249,18 +253,18 @@ public class ScheduleBuilder {
         }
     }
 
-    private void BalanceZones() {
+    void BalanceZones() {
         for (Zone zone : zonesByPriority) {
             MaximumTransferForOne(zone);
         }
-        System.out.println("Zones before sharing: \n");
         for (int i = zonesByPriority.size() - 1; i >= 0; i--) {
             ShareImbalanceBetweenConnections(zonesByPriority.get(i));
         }
     }
 
     //transfer hours from and to the zone through connections to bring imbalance as close to 0 as possible
-    private void MaximumTransferForOne(Zone zoneToBalance) {
+    //does not increase imbalance of zones with less number of connections
+    void MaximumTransferForOne(Zone zoneToBalance) {
         //if already in balance
         if (zoneToBalance.imbalance == 0) {
             return;
@@ -307,7 +311,7 @@ public class ScheduleBuilder {
     }
 
     //make transfer from zone "from" to zone "to" through connection "task" to bring imbalance in zone "to" as close to 0 as possible
-    private void BalanceTo(Zone to, Zone from, String task) {
+    void BalanceTo(Zone to, Zone from, String task) {
         if (from.capacity.get(task) <= 0)
             return;
 
@@ -330,7 +334,7 @@ public class ScheduleBuilder {
     }
 
     //make transfer from zone "from" to zone "to" through connection "task" to bring imbalance in zone "from" as close to 0 as possible
-    private void BalanceFrom(Zone to, Zone from, String task) {
+    void BalanceFrom(Zone to, Zone from, String task) {
         if (from.capacity.get(task) <= 0)
             return;
 
@@ -356,7 +360,7 @@ public class ScheduleBuilder {
     }
 
     //make transfer from zone "from" to zone "to" through connection "task" to bring imbalance as close to equal as possible in 2 zones
-    private void EqualizedTransfer(Zone to, Zone from, String task) {
+    void EqualizedTransfer(Zone to, Zone from, String task) {
         //if "from" zone doesn't have hours to transfer
         if (from.capacity.get(task) <= 0)
             return;
@@ -452,7 +456,7 @@ public class ScheduleBuilder {
 
     //transfer hours from one zone to another via given task
     //update imbalance and capacity of each zone
-    private void Transfer(Zone to, Zone from, String task, double valueToTransfer) {
+    void Transfer(Zone to, Zone from, String task, double valueToTransfer) {
         //System.out.println("Transfer " + valueToTransfer + " from " + (from.zoneOrderInTime + 1) + " to " + (to.zoneOrderInTime + 1) + " via " + task);
         to.imbalance += valueToTransfer;
         to.capacity.put(task, to.capacity.get(task) + valueToTransfer);
@@ -461,7 +465,7 @@ public class ScheduleBuilder {
     }
 
     //construct connections from one zone
-    private Vector<Connection> vectorOfConnections(Zone zone) {
+    Vector<Connection> vectorOfConnections(Zone zone) {
         Vector<Connection> connections = new Vector<>();
         Set<String> tasks = zone.capacity.keySet(); //get list of tasks in current zone
         for (Zone fellowZone : zonesByDates) { // go through all zones
@@ -500,7 +504,7 @@ public class ScheduleBuilder {
 
     //save result in BuiltDayList in Data class
     //position order of tasks base on task priorities
-    private void constructOutput() {
+    void constructOutput() {
         Set<String> tasks;
 
         //construct output for each zone
@@ -557,11 +561,11 @@ public class ScheduleBuilder {
 
     //add sequence of days with only one type of tasks (prioritized or non prioritized) for one zone
     //taskType: 1 when prioritized, -1 when non prioritized, 0 for mono zone
-    private void AddMonoBlock(Zone z, int taskType, double totalCapacity, double dayCapacity) {
+    void AddMonoBlock(Zone z, int taskType, double totalCapacity, double dayCapacity) {
         BuiltDay day;
         BuiltTask task;
         Set<String> tasks;
-        Date currentDate = new Date();
+        Date currentDate;
         double blockDuration = Math.floor(totalCapacity / dayCapacity); //3.6
         for (int i = 0; i < blockDuration; i++) {
             currentDate = new Date(Data.getTaskList().getEarliest().getTime() + TimeUnit.DAYS.toMillis(bdList.getSize()));
@@ -584,7 +588,7 @@ public class ScheduleBuilder {
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t) && Data.getTaskList().getTasks().get(j).getPriority()) {
                             percentage = 100 * z.capacity.get(t) / (totalCapacity/dayCapacity) / Data.getTaskList().getTasks().get(j).getHours();
-                            task = new BuiltTask(t, z.capacity.get(t) / (totalCapacity/dayCapacity), percentage);
+                            task = new BuiltTask(t, z.capacity.get(t) / (totalCapacity/dayCapacity), percentage, Data.getTaskList().getTasks().get(j).getColor());
                             day.addBTask(task);
                             break;
                         }
@@ -594,7 +598,7 @@ public class ScheduleBuilder {
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t) && !Data.getTaskList().getTasks().get(j).getPriority()) {
                             percentage = 100 * z.capacity.get(t) / (totalCapacity/dayCapacity) / Data.getTaskList().getTasks().get(j).getHours();
-                            task = new BuiltTask(t, z.capacity.get(t) / (totalCapacity/dayCapacity), percentage);
+                            task = new BuiltTask(t, z.capacity.get(t) / (totalCapacity/dayCapacity), percentage, Data.getTaskList().getTasks().get(j).getColor());
                             day.addBTask(task);
                             break;
                         }
@@ -604,7 +608,7 @@ public class ScheduleBuilder {
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t)){
                             percentage = 100 * z.capacity.get(t) / (z.duration - z.numOfDaysOff) / Data.getTaskList().getTasks().get(j).getHours();
-                            task = new BuiltTask(t, z.capacity.get(t) / (z.duration - z.numOfDaysOff), percentage);
+                            task = new BuiltTask(t, z.capacity.get(t) / (z.duration - z.numOfDaysOff), percentage, Data.getTaskList().getTasks().get(j).getColor());
                             day.addBTask(task);
                             break;
                         }
@@ -617,11 +621,11 @@ public class ScheduleBuilder {
     }
 
     //add day to built days list that contains both prioritized and non prioritized tasks for one zone
-    private void AddMixedBlock(Zone z, double dayCapacity, double totalPrioritizedHrs, double totalNonPrioritizedHrs) {
+    void AddMixedBlock(Zone z, double dayCapacity, double totalPrioritizedHrs, double totalNonPrioritizedHrs){
         BuiltDay day;
         BuiltTask task;
         Set<String> tasks;
-        Date currentDate = new Date();
+        Date currentDate;
         boolean added = false;
 
         while(!added){
@@ -646,7 +650,7 @@ public class ScheduleBuilder {
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t) && Data.getTaskList().getTasks().get(j).getPriority()) {
                             percentage = 100 * z.capacity.get(t) / (totalPrioritizedHrs/dayCapacity)* pFraction / Data.getTaskList().getTasks().get(j).getHours();
-                            task = new BuiltTask(t, z.capacity.get(t) /(totalPrioritizedHrs/dayCapacity)* pFraction, percentage);
+                            task = new BuiltTask(t, z.capacity.get(t) /(totalPrioritizedHrs/dayCapacity)* pFraction, percentage, Data.getTaskList().getTasks().get(j).getColor());
                             day.addBTask(task);
                             break;
                         }
@@ -662,7 +666,7 @@ public class ScheduleBuilder {
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t) && !Data.getTaskList().getTasks().get(j).getPriority()) {
                             percentage = 100 * z.capacity.get(t) / (totalNonPrioritizedHrs/dayCapacity) * nFraction / Data.getTaskList().getTasks().get(j).getHours();
-                            task = new BuiltTask(t, z.capacity.get(t) /(totalNonPrioritizedHrs/dayCapacity) * nFraction, percentage);
+                            task = new BuiltTask(t, z.capacity.get(t) /(totalNonPrioritizedHrs/dayCapacity) * nFraction, percentage, Data.getTaskList().getTasks().get(j).getColor());
                             day.addBTask(task);
                             break;
                         }
@@ -673,7 +677,7 @@ public class ScheduleBuilder {
         }//end while loop
     }
 
-    private void printZones(){
+    void printZones(){
         System.out.println("Total hours: "+ totalHours);
         System.out.println("Duration: "+ duration);
         System.out.println("Ideal Hours per day: "+ idealHoursPerDay + '\n');

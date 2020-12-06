@@ -9,88 +9,73 @@ public class Main {
 
         //create dates
         Date date1 = new Date(120, Calendar.DECEMBER, 5);
-        Date date2 = new Date(120, Calendar.DECEMBER, 19);
+        Date date2 = new Date(120, Calendar.DECEMBER, 6);
 
-        Date date3 = new Date(120, Calendar.DECEMBER, 2);
-        Date date4 = new Date(120, Calendar.DECEMBER, 16);
+        Date date3 = new Date(120, Calendar.DECEMBER, 6);
+        Date date4 = new Date(120, Calendar.DECEMBER, 7);
 
-        Date date5 = new Date(120, Calendar.DECEMBER, 10);
-        Date date6 = new Date(120, Calendar.DECEMBER, 30);
+        Date date5 = new Date(120, Calendar.DECEMBER, 7);
+        Date date6 = new Date(120, Calendar.DECEMBER, 8);
 
-        Date date7 = new Date(120, Calendar.DECEMBER, 5);
-        Date date8 = new Date(120, Calendar.DECEMBER, 30);
+        Date date7 = new Date(120, Calendar.DECEMBER, 8);
+        Date date8 = new Date(120, Calendar.DECEMBER, 9);
 
-        Date date9 = new Date(120, Calendar.DECEMBER, 2);
-        Date date10 = new Date(120, Calendar.DECEMBER, 30);
+        Date date9 = new Date(120, Calendar.DECEMBER, 9);
+        Date date10 = new Date(120, Calendar.DECEMBER, 10);
 
-        Date date11 = new Date(120, Calendar.DECEMBER, 6);
-        Date date12 = new Date(120, Calendar.DECEMBER, 13);
-        Date date13 = new Date(120, Calendar.DECEMBER, 20);
-        Date date14 = new Date(120, Calendar.DECEMBER, 27);
+        Date date11 = new Date(120, Calendar.DECEMBER, 5);
+        Date date12 = new Date(120, Calendar.DECEMBER, 10);
+
+        Date date13 = new Date(120, Calendar.DECEMBER, 5);
+        Date date14 = new Date(120, Calendar.DECEMBER, 7);
 
         //create tasks
-        Task t1 = new Task("t1", date1, date2, 12, false);
+        Task t1 = new Task("A", date1, date2, 2, false);
         Data.getTaskList().addTask(t1);
-        Task t2 = new Task("t2", date3, date4, 30, true);
+        Task t2 = new Task("B", date3, date4, 2, true);
         Data.getTaskList().addTask(t2);
-        Task t3 = new Task("t3", date5, date6, 20, false);
+        Task t3 = new Task("C", date5, date6, 2, false);
         Data.getTaskList().addTask(t3);
-        Task t4 = new Task("t4", date7, date8, 10, false);
+        Task t4 = new Task("D", date7, date8, 2, false);
         Data.getTaskList().addTask(t4);
-        Task t5 = new Task("t5", date9, date10, 30, true);
-        Data.getTaskList().addTask(t5);
-        Task t6 = new Task("something", date11, date12, 3, false);
-        Data.getTaskList().addTask(t6);
 
-        //add days off
-        Data.getDayOffList().addRepeatedDayOff(date11, 7);
-
-        //calculate schedule
         ScheduleBuilder sb = new ScheduleBuilder();
-
-        //get workload phrase
-        String wl = WorkloadCalculator.getWorkload();
-        System.out.println(wl);
-
-        //print schedule
-        if(Data.getBuiltDayList().successful)
+        sb.balanceTasks();
+        if(Data.getBuiltDayList().successful) {
+            //get workload phrase
+            String wl = WorkloadCalculator.getWorkload();
+            System.out.println(wl);
             Data.printBDList();
-        else
+        }else
             System.out.println("Unsuccessful");
         System.out.println('\n');
 
-        //print colors before categories
-        for(int i = 0; i < Data.getTaskList().getSize(); i++){
 
-            System.out.println("Task "+ Data.getTaskList().getTasks().get(i).getName() + ": " + Data.getTaskList().getTasks().get(i).getColor());
-        }
-        System.out.println('\n');
+        Data.getDayOffList().addRepeatedDayOff(date1, 2);
+
 
         //create categories
         Data.setCategoriesList(new CategoriesList());
         Data.getCategories().addCategory("C1");
         Data.getCategories().getCategory("C1").addTask(t3);
         Data.getCategories().getCategory("C1").addTask(t4);
-        Data.getTaskList().removeTask(t3);
-        Data.getCategories().getCategory("C1").addTask(t5);
+        Data.getCategories().getCategory("C1").addTask(t2);
+
+        Data.getTaskList().moveTask(t2, 2);
+        Data.getTaskList().moveTask(t3, -2);
+        Data.getTaskList().removeTask(t4);
+        Data.getTaskList().removeTask(t2);
+        Data.getTaskList().editTask(t3, new Task("C", date5, date6, 2, true));
 
 
-        //print colors after categories
-        for(int i = 0; i < Data.getTaskList().getSize(); i++){
-
-            System.out.println("Task "+ Data.getTaskList().getTasks().get(i).getName() + ": " + Data.getTaskList().getTasks().get(i).getColor());
-        }
-        System.out.println('\n');
-
-        //remove one category
-        Data.getCategories().removeCategory("C1");
-        Data.getCategories().getCategory("C2").removeTask(t1);
-
-        //print categories after removal
-        for(int i = 0; i < Data.getTaskList().getSize(); i++){
-
-            System.out.println("Task "+ Data.getTaskList().getTasks().get(i).getName() + ": " + Data.getTaskList().getTasks().get(i).getColor());
-        }
+        sb = new ScheduleBuilder();
+        if(Data.getBuiltDayList().successful) {
+            //get workload phrase
+            String wl = WorkloadCalculator.getWorkload();
+            System.out.println(wl);
+            Data.printBDList();
+        }else
+            System.out.println("Unsuccessful");
         System.out.println('\n');
 
     }

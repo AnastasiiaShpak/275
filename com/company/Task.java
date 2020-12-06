@@ -17,6 +17,8 @@ public class Task {
     private String category;
     private boolean priority;
 
+
+
     public Task(String name, Date start, Date deadline, double hours, boolean prioritized){
         this.name = name;
         this.start = start;
@@ -64,4 +66,25 @@ public class Task {
         return priority;
     }
     public int getDuration(){return duration;}
+    void setName(String name) {
+        this.name = name;
+    }
+    void setStart(Date start) {
+        this.start = start;
+    }
+    void setDeadline(Date deadline) {
+        this.deadline = deadline;
+    }
+    void setDuration(int duration) {
+        this.duration = duration;
+    }
+    void setHours(double hours) {
+        this.hours = hours;
+    }
+    public void setLevelOfDifficulty(int levelOfDifficulty) {
+        this.levelOfDifficulty = levelOfDifficulty;
+    }
+    void setPriority(boolean priority) {
+        this.priority = priority;
+    }
 }
