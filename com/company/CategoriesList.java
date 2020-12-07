@@ -1,6 +1,6 @@
 /*
 List of categories
-Maximum number of categories = 100
+Maximum number of categories = 50
 
 CMPT275 Project
 Group 21
@@ -27,7 +27,7 @@ public class CategoriesList {
         if(name.length() > 25 || name.equals(""))
             return -1;
 
-        if(categories.size() == 100)
+        if(categories.size() == 50)
             return -3;
 
         for(Category c: categories){

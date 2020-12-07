@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 public class TaskList {
     private Vector<Task> tasks;
-    private Date earliest;
-    private Date latest;
+    Date earliest;
+    Date latest;
     private int duration = 0;
 
     //constructor
@@ -38,10 +38,7 @@ public class TaskList {
     }
     //-1 if tasks is not initialized
     public int getSize(){
-        if(tasks != null)
-            return tasks.size();
-        else
-            return -1;
+        return tasks.size();
     }
 
     //sorted by start date
@@ -109,29 +106,12 @@ public class TaskList {
             return -1;
 
         //update earliest date
-        if(t.getStart().compareTo(earliest) == 0){
-            if(tasks.size() == 1)
-                earliest = null;
-            else {
-                Date newEarliest = null;
-                for (Task task: tasks){
-                    if(task != t){
-                        if (newEarliest == null) {
-                            newEarliest = task.getStart();
-                            if (newEarliest.compareTo(earliest) == 0)
-                                break;
-                        } else if(task.getStart().compareTo(newEarliest) < 0){
-                            newEarliest = task.getStart();
-                            if(newEarliest.compareTo(earliest) == 0)
-                                break;
-                        }
-                    }
-
-                }
-                earliest = newEarliest;
-
-            }
-        }
+        if(tasks.size() == 1)
+            earliest = null;
+        else if(tasks.get(0) != t)
+            earliest = tasks.get(0).getStart();
+        else
+            earliest = tasks.get(1).getStart();
         //end update earliest
 
         //update last date
@@ -275,7 +255,6 @@ public class TaskList {
         Date newLatest = null;
         if(!tasks.contains(t))
             return -2;
-
         if(days == 0){
             return 0;
         }else{
@@ -283,27 +262,30 @@ public class TaskList {
             newDeadline = new Date(t.getDeadline().getTime() + TimeUnit.DAYS.toMillis(days));
         }
         //update earliest date
-        if(t.getStart().compareTo(earliest) > 0){
-            if (newStart.compareTo(earliest) < 0)
+        if(tasks.size() == 1)
+            newEarliest = newStart;
+        else if(tasks.get(0) == t)
+            if(days < 0)
                 newEarliest = newStart;
-            else
+            else{
+                if(newStart.compareTo(tasks.get(1).getStart()) > 0){
+                    newEarliest = tasks.get(1).getStart();
+                }else{
+                    newEarliest = newStart;
+                }
+            }
+        else{
+            if(days > 0)
                 newEarliest = earliest;
-        }else if(t.getStart().compareTo(earliest) == 0){
-            if(newStart.compareTo(earliest) < 0){
-                newEarliest = newStart;
-            }else {
-                newEarliest = newStart;
-                for (Task currentTask : tasks) {
-                    if (currentTask != t) {
-                        if (currentTask.getStart().compareTo(newEarliest) < 0) {
-                            newEarliest = currentTask.getStart();
-                        }
-                    }
+            else{
+                if(newStart.compareTo(tasks.get(0).getStart()) > 0){
+                    newEarliest = tasks.get(0).getStart();
+                }else{
+                    newEarliest = newStart;
                 }
             }
         }
 
-        //end update earliest
         //update last date
         if(t.getDeadline().compareTo(latest) < 0){
             if (newDeadline.compareTo(latest) > 0)

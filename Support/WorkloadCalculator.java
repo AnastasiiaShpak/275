@@ -121,7 +121,7 @@ public class WorkloadCalculator{
     }
 
     //level can only be number between 0 and 5 (both included)
-    private static String assignNameToLevel(int level){
+    static String assignNameToLevel(int level){
         String name;
         if(level == 0){
             name = "free";

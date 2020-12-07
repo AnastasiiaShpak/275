@@ -4,13 +4,13 @@ When level of difficulty if created, user is able to input name of difficulty in
 
 CMPT275 Project
 Group 21
-
  */
+
 package com.company;
 import java.util.Hashtable;
 
 public class LevelsOfDifficultyList {
-    private static Hashtable<String, Double> levels = new Hashtable<>();
+    static Hashtable<String, Double> levels = new Hashtable<>();
 
     //-1 if level already exists
     //-2 if name is too long

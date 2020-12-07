@@ -384,7 +384,7 @@ public class ScheduleBuilder {
     }
 
     //if zone or at least one of its connected zones are imbalanced, share this imbalance between all zones
-    private void ShareImbalanceBetweenConnections(Zone zone) {
+    void ShareImbalanceBetweenConnections(Zone zone) {
         if (Math.abs(zone.imbalance) == 0) //return if balanced
             return;
 
@@ -456,6 +456,7 @@ public class ScheduleBuilder {
 
     //transfer hours from one zone to another via given task
     //update imbalance and capacity of each zone
+    //value to transfer has to be greater or equal to capacity in "from" zone
     void Transfer(Zone to, Zone from, String task, double valueToTransfer) {
         //System.out.println("Transfer " + valueToTransfer + " from " + (from.zoneOrderInTime + 1) + " to " + (to.zoneOrderInTime + 1) + " via " + task);
         to.imbalance += valueToTransfer;
@@ -549,7 +550,7 @@ public class ScheduleBuilder {
                 AddMonoBlock(z, -1, totalNonPrioritizedHrs, dayCapacity);
             }
         }
-        while(bdList.getSize() + 1 < Data.getTaskList().getDuration()) {
+        while(bdList.getSize() < Data.getTaskList().getDuration()) {
             Date currentDate = new Date(Data.getTaskList().getEarliest().getTime() + TimeUnit.DAYS.toMillis(bdList.getSize()));
             BuiltDay day = new BuiltDay(currentDate);
             day.setTotalHours(0);
@@ -649,7 +650,7 @@ public class ScheduleBuilder {
                     //go through each task
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t) && Data.getTaskList().getTasks().get(j).getPriority()) {
-                            percentage = 100 * z.capacity.get(t) / (totalPrioritizedHrs/dayCapacity)* pFraction / Data.getTaskList().getTasks().get(j).getHours();
+                            percentage = Math.round(100 * z.capacity.get(t) / (totalPrioritizedHrs/dayCapacity)* pFraction / Data.getTaskList().getTasks().get(j).getHours());
                             task = new BuiltTask(t, z.capacity.get(t) /(totalPrioritizedHrs/dayCapacity)* pFraction, percentage, Data.getTaskList().getTasks().get(j).getColor());
                             day.addBTask(task);
                             break;
@@ -665,7 +666,7 @@ public class ScheduleBuilder {
                     double percentage;
                     for (int j = 0; j < Data.getTaskList().getSize(); j++) {
                         if (Data.getTaskList().getTasks().get(j).getName().equals(t) && !Data.getTaskList().getTasks().get(j).getPriority()) {
-                            percentage = 100 * z.capacity.get(t) / (totalNonPrioritizedHrs/dayCapacity) * nFraction / Data.getTaskList().getTasks().get(j).getHours();
+                            percentage = Math.round(100 * z.capacity.get(t) / (totalNonPrioritizedHrs/dayCapacity) * nFraction / Data.getTaskList().getTasks().get(j).getHours());
                             task = new BuiltTask(t, z.capacity.get(t) /(totalNonPrioritizedHrs/dayCapacity) * nFraction, percentage, Data.getTaskList().getTasks().get(j).getColor());
                             day.addBTask(task);
                             break;
@@ -676,7 +677,7 @@ public class ScheduleBuilder {
             bdList.addBDay(day);
         }//end while loop
     }
-
+/*
     void printZones(){
         System.out.println("Total hours: "+ totalHours);
         System.out.println("Duration: "+ duration);
@@ -693,6 +694,8 @@ public class ScheduleBuilder {
         }
     }
 
+
+ */
    /*
     private void printCriticalDays(){
         String pattern = "yyyy-MM-dd";

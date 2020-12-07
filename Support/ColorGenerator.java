@@ -13,7 +13,7 @@ import java.util.Vector;
 
 public class ColorGenerator {
     private static Random mRandom = new Random(System.currentTimeMillis());
-    private static Vector<Integer> takenColors = new Vector<>();
+    static Vector<Integer> takenColors = new Vector<>();
 
     public static Color generateColor() {
         Color c = null;
@@ -113,7 +113,7 @@ public class ColorGenerator {
     }
 
     //return -1 is color is not in the list
-    private static int getIndexFromColor(Color c){
+    static int getIndexFromColor(Color c){
         int index;
         if(c.equals(new Color(246, 227, 158) )){
             index = 0;

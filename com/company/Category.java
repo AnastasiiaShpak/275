@@ -80,11 +80,13 @@ public class Category{
         }
     }
 
-    public void clear(){
-        ColorGenerator.freeColor(color);
-        for(Task t: tasks){
-            t.setColor(ColorGenerator.generateColor());
+    public void clear() {
+        if (color != null) {
+            ColorGenerator.freeColor(color);
+            for (Task t : tasks) {
+                t.setColor(ColorGenerator.generateColor());
+            }
+            tasks = null;
         }
-        tasks = null;
     }
 }

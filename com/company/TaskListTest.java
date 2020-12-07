@@ -1,3 +1,11 @@
+/*
+Testing cases for Task List
+Simple getters and setters are not covered by testing
+
+CMPT275 Project
+Group 21
+*/
+
 package com.company;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,10 +18,10 @@ class TaskListTest {
     private Date dec5 = new Date(120, Calendar.DECEMBER, 5);
     private Date dec6 = new Date(120, Calendar.DECEMBER, 6);
     private Date dec7 = new Date(120, Calendar.DECEMBER, 7);
+    private Date dec8 = new Date(120, Calendar.DECEMBER, 8);
     private Date dec10 = new Date(120, Calendar.DECEMBER, 10);
     private Date dec3_2021 = new Date(121, Calendar.DECEMBER, 3);
     private Date dec4_2021 = new Date(121, Calendar.DECEMBER, 4);
-
 
     @org.junit.jupiter.api.Test
     void getDuration(){
@@ -24,6 +32,8 @@ class TaskListTest {
 
     @org.junit.jupiter.api.Test
     void getSize() {
+        //when no tasks
+        assertEquals(tList.getSize(), 0);
         //check how size changes when tasks are added
         Task task1 = new Task("A", dec5, dec6, 5, false);
         Task task2 = new Task("B", dec10, dec10, 5, false);
@@ -70,12 +80,25 @@ class TaskListTest {
         task2.setStart(dec7);
         assertEquals(tList.addTask(task2), 0);
         assertEquals(tList.getEarliest(), dec7);
+
+        tList.clear();
+
+        //go beyond number of tasks limit
+        for(int i = 0; i < 50; i++){
+            assertEquals(tList.addTask(new Task(Integer.toString(i), dec3, dec4, 2, false)), 0);
+        }
+        //task number 51
+        assertEquals(tList.addTask(new Task(Integer.toString(50), dec3, dec4, 2, false)), -5);
     }
 
     @org.junit.jupiter.api.Test
     void removeTask() {
-        //Test1: remove the only task from list
-        Task task1 = new Task("A", dec5, dec6, 5, false);
+        //Test1: remove the only task from list, check if task is in category dated are still calculated correctly
+        Task task1 = new Task("A", dec5, dec10, 5, false);
+        CategoriesList cList = new CategoriesList();
+        Data.setCategoriesList(cList);
+        cList.addCategory("C");
+        cList.getCategory("C").addTask(task1);
         tList.addTask(task1);
         assertEquals(tList.removeTask(task1), 0);
         assertEquals(tList.getSize(), 0);
@@ -92,11 +115,33 @@ class TaskListTest {
 
         //Test3: remove one of many tasks in the list
         tList.addTask(task2);
-        assertEquals(tList.removeTask(task2), 0);
-        assertEquals(tList.getDuration(), 2);
+        assertEquals(tList.removeTask(task1), 0);
+        assertEquals(tList.getDuration(), 6);
         assertEquals(tList.getSize(), 1);
         assertEquals(tList.getEarliest(), dec5);
+        assertEquals(tList.getLatest(), dec10);
+
+        //remove task when it's deadline is latest date in schedule and task that comes after is has the sam deadline
+        Task task3 = new Task("C", dec3, dec6, 5, false);
+        tList.addTask(task3);
+        assertEquals(tList.removeTask(task2), 0);
+        assertEquals(tList.getEarliest(), dec3);
         assertEquals(tList.getLatest(), dec6);
+        assertEquals(tList.getDuration(), 4);
+
+        //remove task when it's deadline is latest date in schedule and task that doesn't come after is has the same deadline
+        tList.removeTask(task3);
+        task3.setDeadline(dec10);
+        tList.addTask(task3);
+        Task task4 = new Task("D", dec6, dec7, 5, false);
+        tList.addTask(task4);
+        Task task5 = new Task("E", dec7, dec10, 5, false);
+        tList.addTask(task5);
+        assertEquals(tList.removeTask(task3), 0);
+        assertEquals(tList.getEarliest(), dec6);
+        assertEquals(tList.getLatest(), dec10);
+        assertEquals(tList.getDuration(), 5);
+
     }
 
     @org.junit.jupiter.api.Test
@@ -142,14 +187,34 @@ class TaskListTest {
         assertEquals(tList.getEarliest(), dec3);
         assertEquals(tList.getDuration(), 8);
         assertEquals(tList.getSize(), 2);
+
+        tList.clear();
+
+        //move task to the end of the list
+        task1 = new Task("A", dec5, dec6, 5, false);
+        task2 = new Task("B", dec5, dec6, 5, false);
+        Task task5 = new Task("B", dec7, dec8, 5, false);
+        tList.addTask(task1);
+        tList.addTask(task2);
+        assertEquals(tList.editTask(task2, task5), 0);
+        assertEquals(tList.getLatest(), dec8);
+        assertEquals(tList.getEarliest(), dec5);
+        assertEquals(tList.getDuration(), 4);
+        assertEquals(tList.getSize(), 2);
+
+
     }
 
     @org.junit.jupiter.api.Test
     void moveTask() {
-        Task task1 = new Task("A", dec5, dec6, 5, false);
+        Task task1 = new Task("A", dec4, dec5, 5, false);
         Task task2 = new Task("B", dec5, dec4_2021, 5, false);
         Task task3 = new Task("C", dec5, dec4_2021, 5, false);
         tList.addTask(task1);
+
+        //move rhe only task in the list
+        assertEquals(tList.moveTask(task1, 1), 0);
+
         tList.addTask(task2);
 
         //schedule becomes too long
@@ -157,6 +222,9 @@ class TaskListTest {
 
         //task is not in schedule
         assertEquals(tList.moveTask(task3, 1), -2);
+
+        //days == 0
+        assertEquals(tList.moveTask(task1, 0), 0);
 
         //move forward
        assertEquals(tList.moveTask(task1, 1), 0);
@@ -175,6 +243,50 @@ class TaskListTest {
         assertEquals(tList.getDuration(), 365); //test boundary for schedule duration limit
         assertEquals(task2.getStart(), dec4);
         assertEquals(task2.getDeadline(), dec3_2021);
+
+        //when task is not first and is moved backward, task's new start date becomes new earliest date
+        tList.clear();
+        task1 = new Task("A", dec4, dec5, 5, false);
+        tList.addTask(task1);
+        task2 = new Task("B", dec5, dec6, 5, false);
+        tList.addTask(task2);
+        assertEquals(tList.moveTask(task2, -2), 0);
+        assertEquals(tList.getSize(), 2);
+        assertEquals(tList.getEarliest(), dec3);
+        assertEquals(tList.getLatest(), dec5);
+        assertEquals(tList.getDuration(), 3); //test boundary for schedule duration limit
+        assertEquals(task2.getStart(), dec3);
+        assertEquals(task2.getDeadline(), dec4);
+
+        //when task is not first and is moved backward, task's new start date does not become new earliest date
+        tList.clear();
+        task1 = new Task("A", dec3, dec5, 5, false);
+        tList.addTask(task1);
+        task2 = new Task("B", dec5, dec6, 5, false);
+        tList.addTask(task2);
+        assertEquals(tList.moveTask(task2, -1), 0);
+        assertEquals(tList.getSize(), 2);
+        assertEquals(tList.getEarliest(), dec3);
+        assertEquals(tList.getLatest(), dec5);
+        assertEquals(tList.getDuration(), 3);
+        assertEquals(task2.getStart(), dec4);
+        assertEquals(task2.getDeadline(), dec5);
+
+        //when task is first and is moved forward, task's new start date becomes new earliest date
+        //when task's deadline is not latest date, task's new deadline becomes new latest date
+        tList.clear();
+        task1 = new Task("A", dec3, dec5, 5, false);
+        tList.addTask(task1);
+        task2 = new Task("B", dec6, dec6, 5, false);
+        tList.addTask(task2);
+        assertEquals(tList.moveTask(task1, 2), 0);
+        assertEquals(tList.getSize(), 2);
+        assertEquals(tList.getEarliest(), dec5);
+        assertEquals(tList.getLatest(), dec7);
+        assertEquals(tList.getDuration(), 3);
+        assertEquals(task1.getStart(), dec5);
+        assertEquals(task1.getDeadline(), dec7);
+
     }
 
     @org.junit.jupiter.api.Test
