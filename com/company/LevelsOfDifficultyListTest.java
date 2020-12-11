@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LevelsOfDifficultyListTest {
-    LevelsOfDifficultyList ldList = new LevelsOfDifficultyList();
 
     @Test
     void addLevel() {
@@ -51,12 +50,15 @@ class LevelsOfDifficultyListTest {
         LevelsOfDifficultyList.addLevel("A", 5);
 
         //case1: successful case
+        assertEquals(LevelsOfDifficultyList.levels.size(), 1);
         assertEquals(LevelsOfDifficultyList.editLevelDifficulty("A", 6), 0);
 
         //case2: name is not in a list
+        assertEquals(LevelsOfDifficultyList.levels.size(), 1);
         assertEquals(LevelsOfDifficultyList.editLevelDifficulty("B", 6), -1);
 
         //case3: negative difficulty
+        assertEquals(LevelsOfDifficultyList.levels.size(), 1);
         assertEquals(LevelsOfDifficultyList.editLevelDifficulty("A",-1), -2);
 
         LevelsOfDifficultyList.removeLevel("A");
@@ -67,6 +69,7 @@ class LevelsOfDifficultyListTest {
         LevelsOfDifficultyList.addLevel("A", 5);
 
         //case1: name is not in a list
+        assertEquals(LevelsOfDifficultyList.levels.size(), 1);
         assertEquals(LevelsOfDifficultyList.removeLevel("B"), -1);
 
         //case2: successful case

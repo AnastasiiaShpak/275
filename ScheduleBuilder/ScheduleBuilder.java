@@ -89,7 +89,7 @@ public class ScheduleBuilder {
         }
     }
 
-    void addCriticalDate(Date d){
+    private void addCriticalDate(Date d){
         if(criticalDays.size() == 0){
             criticalDays.add(d);
         }else{

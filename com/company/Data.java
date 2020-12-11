@@ -49,12 +49,16 @@ public class Data {
     }
     //support function for TaskList and ScheduleBuilder
     //finds difference between 2 dates in days (start and end dates included)
+    //returns -1 if smallest > biggest
     public static int difference(Date smallest, Date biggest){
         long s = smallest.getTime();
         long b = biggest.getTime();
         long diffTime = b - s;
+        if(diffTime < 0)
+            return -1;
         return (int) (diffTime / (1000 * 60 * 60 * 24)) + 1;
     }
+    //for testing
     public static void printBDList(){
         for(int i = 0; i < bdList.getSize(); i++){
             System.out.println(bdList.getBuiltDays().get(i).getDate());

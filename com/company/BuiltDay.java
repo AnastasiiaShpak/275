@@ -15,7 +15,7 @@ public class BuiltDay {
     private Vector<BuiltTask> builtTasks;
 
     public BuiltDay(Date d){
-        builtTasks = new Vector<BuiltTask>();
+        builtTasks = new Vector<>();
         this.date = d;
     }
     public void addBTask(BuiltTask bt){

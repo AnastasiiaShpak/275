@@ -115,6 +115,9 @@ public class ColorGenerator {
     //return -1 is color is not in the list
     static int getIndexFromColor(Color c){
         int index;
+        if(c == null)
+            return -1;
+
         if(c.equals(new Color(246, 227, 158) )){
             index = 0;
         }else if(c.equals(new Color(253, 205, 127))){

@@ -251,8 +251,8 @@ public class TaskList {
     public int moveTask(Task t, int days){
         Date newStart;
         Date newDeadline;
-        Date newEarliest = null;
-        Date newLatest = null;
+        Date newEarliest;
+        Date newLatest = latest;
         if(!tasks.contains(t))
             return -2;
         if(days == 0){
@@ -333,6 +333,7 @@ public class TaskList {
         }
         return 0;
     }
+
     //clear task list
     public void clear(){
         tasks.clear();

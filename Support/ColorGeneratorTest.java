@@ -37,7 +37,7 @@ class ColorGeneratorTest {
         ColorGenerator.freeColor(new Color(0, 0, 0));
         assertEquals(ColorGenerator.takenColors.size(), 1); //color was not removed
 
-        //case1: color is not one of 12 colors in the list
+        //case2: color is one of 12 colors in the list
         ColorGenerator.freeColor(new Color(246, 227, 158));
         assertEquals(ColorGenerator.takenColors.size(), 0); //color is removed
     }

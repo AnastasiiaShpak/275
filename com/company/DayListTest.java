@@ -1,6 +1,6 @@
 /*
 Testing of DayList class
-simple getters and setters, one line methods are not covered by tasking
+simple getters and setters, one line methods are not covered by testing
 
 CMPT275 Project
 Group 21
@@ -15,10 +15,10 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DayListTest {
-    DayList dList = new DayList();
-    Date dec1 = new Date(120, Calendar.DECEMBER, 1);
-    Date dec2 = new Date(120, Calendar.DECEMBER, 2);
-    Date dec10 = new Date(120, Calendar.DECEMBER, 10);
+    private DayList dList = new DayList();
+    private Date dec1 = new Date(120, Calendar.DECEMBER, 1);
+    private Date dec2 = new Date(120, Calendar.DECEMBER, 2);
+    private Date dec10 = new Date(120, Calendar.DECEMBER, 10);
 
     @Test
     void addDayOff() {

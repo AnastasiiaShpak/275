@@ -13,13 +13,13 @@ import java.awt.*;
 import java.util.Vector;
 
 public class Category{
-    Vector<Task> tasks;
+    private Vector<Task> tasks;
     private String name;
     private Color color;
 
-    public Category(String name){
+    Category(String name){
         this.name = name;
-        tasks = new Vector<Task>();
+        tasks = new Vector<>();
     }
 
     //-1 if invalid name
@@ -27,6 +27,9 @@ public class Category{
     public int setName(String name){
         if(name.length() > 25|| name.equals(""))
             return -1;
+
+        if(name.equals(this.name))
+            return 0;
 
         this.name = name;
         //change category name for all tasks in category
@@ -39,6 +42,9 @@ public class Category{
     }
     public int getSize(){
         return tasks.size();
+    }
+    public Color getColor() {
+        return color;
     }
 
     //-1 if task already exist
@@ -53,7 +59,7 @@ public class Category{
         }
 
         //if task is in different category
-        if(t.getCategory() != ""){
+        if(!t.getCategory().equals("")){
             return -2;
         }
 
@@ -64,6 +70,7 @@ public class Category{
         }else{
             ColorGenerator.freeColor(t.getColor());
             t.setColor(color);
+            t.setCategory(name);
         }
         tasks.add(t);
         return 0;
@@ -85,8 +92,10 @@ public class Category{
             ColorGenerator.freeColor(color);
             for (Task t : tasks) {
                 t.setColor(ColorGenerator.generateColor());
+                t.setCategory("");
             }
-            tasks = null;
+            color = null;
+            tasks.clear();
         }
     }
 }

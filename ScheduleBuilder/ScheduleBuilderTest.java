@@ -1,3 +1,7 @@
+/*
+Testing of ScheduleBuilder class
+
+ */
 package ScheduleBuilder;
 import com.company.Data;
 import com.company.DayList;
@@ -981,10 +985,6 @@ class ScheduleBuilderTest {
         assertEquals(sb.bdList.getBuiltDays().get(1).getBuiltTasks().get(0).getColor(), t1.getColor());
         assertEquals(sb.bdList.getBuiltDays().get(1).getBuiltTasks().get(0).getName(), "A");
         assertEquals(sb.bdList.getBuiltDays().get(1).getBuiltTasks().get(0).getPercentage(), 100);
-
-
-
-
     }
 }
 

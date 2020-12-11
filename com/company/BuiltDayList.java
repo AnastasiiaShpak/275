@@ -1,3 +1,10 @@
+/*
+List of BuiltDay objects
+Data arranged in convenient format for Calendar view
+
+CMPT275 Project
+Group 21
+ */
 package com.company;
 import java.util.Vector;
 
@@ -6,7 +13,7 @@ public class BuiltDayList {
     public boolean successful = true;
     public double totalHours = 0;
     public BuiltDayList(){
-        builtDays = new Vector<BuiltDay>();
+        builtDays = new Vector<>();
     }
     public Vector<BuiltDay> getBuiltDays() {
         return builtDays;

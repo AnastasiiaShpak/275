@@ -8,15 +8,13 @@ Group 21
 
 package com.company;
 import org.junit.jupiter.api.Test;
-
-import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CategoriesListTest {
-    CategoriesList cList = new CategoriesList();
+    private CategoriesList cList = new CategoriesList();
     @Test
     void addCategory() {
         //case1: name length exceeds 25 characters

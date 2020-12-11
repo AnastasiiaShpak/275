@@ -24,30 +24,6 @@ class TaskListTest {
     private Date dec4_2021 = new Date(121, Calendar.DECEMBER, 4);
 
     @org.junit.jupiter.api.Test
-    void getDuration(){
-        Task task1 = new Task("A", dec5, dec6, 5, false);
-        tList.addTask(task1);
-        assertEquals(tList.getDuration(), 2);
-    }
-
-    @org.junit.jupiter.api.Test
-    void getSize() {
-        //when no tasks
-        assertEquals(tList.getSize(), 0);
-        //check how size changes when tasks are added
-        Task task1 = new Task("A", dec5, dec6, 5, false);
-        Task task2 = new Task("B", dec10, dec10, 5, false);
-        tList.addTask(task1);
-        tList.addTask(task2);
-        assertEquals(tList.getSize(), 2);
-
-        //check if size changes there is unsuccessful attempt to add task
-        Task task3 = new Task("C", dec6, dec5, 5, false);
-        tList.addTask(task3);
-        assertEquals(tList.getSize(), 2);
-    }
-
-    @org.junit.jupiter.api.Test
     void addTask() {
         Task task1 = new Task("A", dec6, dec5, 5, false);
         Task task2 = new Task("A", dec10, dec10, 5, false);
@@ -55,7 +31,7 @@ class TaskListTest {
         //deadline before start
         assertEquals(tList.addTask(task1), -2);
 
-        //update latest, earliest for the fist time
+        //update latest, earliest dates
         task1.setDeadline(dec4_2021);
         task1.setStart(dec10);
         assertEquals(tList.addTask(task1), 0);
@@ -63,23 +39,29 @@ class TaskListTest {
         assertEquals(tList.getLatest(), dec4_2021);
 
         //repeated name
+        assertEquals(tList.getSize(), 1);
         assertEquals(tList.addTask(task2), -1);
 
         //go beyond schedule limit
         task2.setName("B");
         task2.setStart(dec3);
+        assertEquals(tList.getSize(), 1);
         assertEquals(tList.addTask(task2), -3);
 
         //too long name
         task2.setStart(dec10);
         task2.setName("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        assertEquals(tList.getSize(), 1);
         assertEquals(tList.addTask(task2), -4);
 
-        //update earliest for the second time
+        //add task to the end of the list
+        tList.removeTask(task2);
         task2.setName("B");
-        task2.setStart(dec7);
+        task2.setStart(dec4_2021);
+        task2.setDeadline(dec4_2021);
+        assertEquals(tList.getSize(), 1);
         assertEquals(tList.addTask(task2), 0);
-        assertEquals(tList.getEarliest(), dec7);
+        assertEquals(tList.getLatest(), dec4_2021);
 
         tList.clear();
 
@@ -88,6 +70,7 @@ class TaskListTest {
             assertEquals(tList.addTask(new Task(Integer.toString(i), dec3, dec4, 2, false)), 0);
         }
         //task number 51
+        assertEquals(tList.getSize(), 50);
         assertEquals(tList.addTask(new Task(Integer.toString(50), dec3, dec4, 2, false)), -5);
     }
 
@@ -121,7 +104,7 @@ class TaskListTest {
         assertEquals(tList.getEarliest(), dec5);
         assertEquals(tList.getLatest(), dec10);
 
-        //remove task when it's deadline is latest date in schedule and task that comes after is has the sam deadline
+        //remove task when it's deadline is latest date in schedule and task that comes after is has the same deadline
         Task task3 = new Task("C", dec3, dec6, 5, false);
         tList.addTask(task3);
         assertEquals(tList.removeTask(task2), 0);
@@ -201,8 +184,6 @@ class TaskListTest {
         assertEquals(tList.getEarliest(), dec5);
         assertEquals(tList.getDuration(), 4);
         assertEquals(tList.getSize(), 2);
-
-
     }
 
     @org.junit.jupiter.api.Test
@@ -212,7 +193,7 @@ class TaskListTest {
         Task task3 = new Task("C", dec5, dec4_2021, 5, false);
         tList.addTask(task1);
 
-        //move rhe only task in the list
+        //move the only task in the list
         assertEquals(tList.moveTask(task1, 1), 0);
 
         tList.addTask(task2);
@@ -235,7 +216,7 @@ class TaskListTest {
        assertEquals(task1.getStart(), dec6);
        assertEquals(task1.getDeadline(), dec7);
 
-       //move backward + change in earliest and latest schedule dates
+       //move backward + change in earliest date
         assertEquals(tList.moveTask(task2, -1), 0);
         assertEquals(tList.getSize(), 2);
         assertEquals(tList.getEarliest(), dec4);
@@ -254,7 +235,7 @@ class TaskListTest {
         assertEquals(tList.getSize(), 2);
         assertEquals(tList.getEarliest(), dec3);
         assertEquals(tList.getLatest(), dec5);
-        assertEquals(tList.getDuration(), 3); //test boundary for schedule duration limit
+        assertEquals(tList.getDuration(), 3);
         assertEquals(task2.getStart(), dec3);
         assertEquals(task2.getDeadline(), dec4);
 
@@ -272,7 +253,6 @@ class TaskListTest {
         assertEquals(task2.getStart(), dec4);
         assertEquals(task2.getDeadline(), dec5);
 
-        //when task is first and is moved forward, task's new start date becomes new earliest date
         //when task's deadline is not latest date, task's new deadline becomes new latest date
         tList.clear();
         task1 = new Task("A", dec3, dec5, 5, false);

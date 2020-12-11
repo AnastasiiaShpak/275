@@ -1,5 +1,5 @@
 /*
-
+Contains information about one task
  */
 
 package com.company;
